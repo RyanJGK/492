@@ -7,7 +7,8 @@ Get 492-Energy-Defense running in under 5 minutes.
 - Docker installed and running
 - Docker Compose v2+
 - 4GB available RAM
-- OpenRouter API key (get free at https://openrouter.ai)
+- OpenRouter API key (free tier available at https://openrouter.ai)
+- Configured for Nous: Hermes 3 405B Instruct (free model)
 
 ## Setup Steps
 

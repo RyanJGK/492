@@ -200,9 +200,15 @@ class AIAgentService:
         # Build analysis prompt
         prompt = self._build_threat_analysis_prompt(data, weights)
         
-        system_message = """You are a cybersecurity threat analysis AI for an energy sector defense system.
-Analyze the provided security data and identify potential threats, correlations, and recommend actions.
-Be concise, factual, and prioritize critical findings."""
+        system_message = """You are a cybersecurity threat analysis AI assistant for an energy sector defense system.
+Your role is to analyze security data and identify potential threats, correlations, and recommend actions.
+
+Guidelines:
+- Be concise and factual
+- Prioritize critical findings
+- Focus on actionable insights
+- Consider energy sector specific threats (SCADA, ICS, OT networks)
+- Identify attack patterns and TTPs"""
         
         # Query AI
         ai_response = await self.query_openrouter(prompt, system_message)
@@ -368,7 +374,7 @@ async def main():
     """Main service loop"""
     # Load configuration from environment
     openrouter_api_key = os.getenv("OPENROUTER_API_KEY")
-    openrouter_model = os.getenv("OPENROUTER_MODEL", "openai/gpt-4-turbo-preview")
+    openrouter_model = os.getenv("OPENROUTER_MODEL", "nousresearch/hermes-3-llama-3.1-405b:free")
     redis_url = os.getenv("REDIS_URL", "redis://redis:6379")
     database_url = os.getenv("DATABASE_URL")
     

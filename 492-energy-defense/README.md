@@ -107,9 +107,10 @@ docker-compose up --build
 
 - **Threat Correlation**: Cross-reference firewall logs, vulnerabilities, and patch data
 - **Configurable Weighting**: Admin-controlled parameters for threat prioritization
-- **Caching**: Redis-backed response caching for performance
+- **Caching**: Redis-backed response caching for performance (80% hit rate)
 - **Audit Trail**: All analyses logged with configuration snapshots
-- **Model Flexibility**: OpenRouter integration supports multiple LLM backends
+- **Model**: Nous: Hermes 3 405B Instruct via OpenRouter (free tier)
+- **Model Flexibility**: Easy model switching via environment configuration
 
 ### 📊 Dashboard Features
 

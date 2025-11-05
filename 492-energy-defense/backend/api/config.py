@@ -21,7 +21,7 @@ class Settings(BaseSettings):
     
     # OpenRouter AI
     OPENROUTER_API_KEY: str
-    OPENROUTER_MODEL: str = "openai/gpt-4-turbo-preview"
+    OPENROUTER_MODEL: str = "nousresearch/hermes-3-llama-3.1-405b:free"
     OPENROUTER_BASE_URL: str = "https://openrouter.ai/api/v1"
     
     # Redis
