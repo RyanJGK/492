@@ -198,8 +198,18 @@ INSERT INTO ai_weight_config (config_name, is_active, weights, description, crea
     }', 'Default AI weighting configuration for threat analysis', 1)
 ON CONFLICT (config_name) DO NOTHING;
 
+-- Create database roles for RBAC
+-- These roles can be used in production for fine-grained access control
+CREATE ROLE observer_role;
+CREATE ROLE analyst_role;
+CREATE ROLE admin_role;
+
 -- Grant appropriate permissions (principle of least privilege)
--- These would be configured based on actual database roles in production
+GRANT CONNECT ON DATABASE energy_defense TO observer_role;
 GRANT SELECT ON ALL TABLES IN SCHEMA public TO observer_role;
 GRANT SELECT, INSERT ON ai_feedback TO analyst_role;
 GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO admin_role;
+
+-- Grant usage on sequences for insert operations
+GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO analyst_role;
+GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO admin_role;
