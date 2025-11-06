@@ -2,12 +2,17 @@
 Data Ingestion Simulator
 Generates realistic SOC environment data for demonstration
 """
+import sys
+import os
+
+# Add parent directory to path for imports
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 import asyncio
 import random
 import logging
 from datetime import datetime, timedelta
 from uuid import uuid4
-import os
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
 from sqlalchemy import select
 
