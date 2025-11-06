@@ -28,6 +28,13 @@ All fix documentation and database optimization resources in one place.
 
 ## 🚨 Critical Fixes Applied (Latest First)
 
+### 12. SQLAlchemy Enum Values Mismatch (P0) 🆕🆕🆕🆕
+**Issue:** `'admin' is not among the defined enum values. Possible values: ADMIN, ANALYST, OBSERVER`  
+**Fix:** Added values_callable to all 6 enum columns to use values instead of names  
+**Files:** `backend/api/models.py`  
+**Details:** [ENUM_VALUES_FIX.md](./ENUM_VALUES_FIX.md)  
+**Status:** ✅ Fixed
+
 ### 11. Login Page & Authentication (P0) 🆕🆕🆕
 **Issue:** Credentials display unclear, case-sensitive login, redirect issues  
 **Fix:** Case-insensitive auth, enhanced UI, improved redirect  
@@ -143,15 +150,15 @@ docker-compose exec postgres psql -U admin -d energy_defense -c \
 
 ## 📊 Summary Statistics
 
-**Total Issues Found:** 11  
-**Critical (P0):** 9  
+**Total Issues Found:** 12  
+**Critical (P0):** 10  
 **High (P1):** 1  
 **Informational:** 1  
-**All Resolved:** ✅ Yes (2025-11-06 04:00 UTC)
+**All Resolved:** ✅ Yes (2025-11-06 04:20 UTC)
 
 **Files Modified:**
 - `backend/database/init.sql` (12 fixes total)
-- `backend/api/models.py` (3 model fixes)
+- `backend/api/models.py` (9 model fixes: 3 metadata + 6 enum)
 - `backend/api/middleware/auth.py` (2 fixes)
 - `backend/requirements.txt` (1 fix)
 - `backend/Dockerfile` (2 fixes)
@@ -192,9 +199,10 @@ docker-compose exec postgres psql -U admin -d energy_defense -c \
 
 ## 🗂️ All Fix Documents
 
+- [ENUM_VALUES_FIX.md](./ENUM_VALUES_FIX.md) - Enum values fix (fix #12) ⭐⭐⭐⭐
 - [LOGIN_FIXES.md](./LOGIN_FIXES.md) - Login & auth improvements (fix #11) ⭐⭐⭐
 - [ALL_FIXES_APPLIED.md](./ALL_FIXES_APPLIED.md) - Complete summary (first 7 fixes) ⭐
-- [ENUM_TYPE_MISMATCH_FIX.md](./ENUM_TYPE_MISMATCH_FIX.md) - Enum type fixes (8-10) ⭐⭐
+- [ENUM_TYPE_MISMATCH_FIX.md](./ENUM_TYPE_MISMATCH_FIX.md) - Enum type name fixes (8-10) ⭐⭐
 - [METADATA_COLUMN_FIX.md](./METADATA_COLUMN_FIX.md) - SQLAlchemy reserved word
 - [DATABASE_CONNECTION_FIX.md](./DATABASE_CONNECTION_FIX.md) - Healthcheck fix
 - [DEEP_DATABASE_ANALYSIS.md](./DEEP_DATABASE_ANALYSIS.md) - Full database audit
