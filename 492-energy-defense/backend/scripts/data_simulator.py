@@ -1,6 +1,7 @@
 """
 Data Ingestion Simulator
 Generates realistic SOC environment data for demonstration
+Note: This service only needs DATABASE_URL, not full config
 """
 import sys
 import os
@@ -15,6 +16,10 @@ from datetime import datetime, timedelta
 from uuid import uuid4
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
 from sqlalchemy import select
+
+# Suppress config warnings - simulator doesn't need full API config
+os.environ.setdefault('SECRET_KEY', 'simulator-not-needed')
+os.environ.setdefault('OPENROUTER_API_KEY', 'simulator-not-needed')
 
 # Setup logging
 logging.basicConfig(

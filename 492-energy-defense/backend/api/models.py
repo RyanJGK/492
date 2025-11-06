@@ -69,7 +69,7 @@ class AuthEvent(Base):
     success = Column(Boolean, nullable=False)
     failure_reason = Column(Text, nullable=True)
     timestamp = Column(DateTime(timezone=True), server_default=func.now(), index=True)
-    metadata = Column(JSON, nullable=True)
+    event_metadata = Column("metadata", JSON, nullable=True)  # Renamed to avoid SQLAlchemy reserved word
     
     user = relationship("User", back_populates="auth_events")
 
@@ -110,7 +110,7 @@ class VulnerabilityScan(Base):
     scan_timestamp = Column(DateTime(timezone=True), server_default=func.now())
     status = Column(SQLEnum(EventStatus), default=EventStatus.PENDING, index=True)
     assigned_to = Column(Integer, ForeignKey("users.id"), nullable=True)
-    metadata = Column(JSON)
+    scan_metadata = Column("metadata", JSON)  # Renamed to avoid SQLAlchemy reserved word
 
 
 class FirewallLog(Base):
@@ -131,7 +131,7 @@ class FirewallLog(Base):
     severity = Column(SQLEnum(SeverityLevel))
     threat_indicator = Column(Boolean, default=False, index=True)
     country_code = Column(String(5))
-    metadata = Column(JSON)
+    log_metadata = Column("metadata", JSON)  # Renamed to avoid SQLAlchemy reserved word
 
 
 class AIAnalysis(Base):
