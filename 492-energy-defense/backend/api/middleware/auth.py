@@ -151,8 +151,12 @@ async def authenticate_user(db: AsyncSession, username: str, password: str) -> O
     """
     Authenticate user credentials
     Returns User object if valid, None otherwise
+    Note: Username lookup is case-insensitive for better UX
     """
-    result = await db.execute(select(User).where(User.username == username))
+    # Normalize username to lowercase for case-insensitive authentication
+    normalized_username = username.lower().strip()
+    
+    result = await db.execute(select(User).where(User.username == normalized_username))
     user = result.scalar_one_or_none()
     
     if not user:

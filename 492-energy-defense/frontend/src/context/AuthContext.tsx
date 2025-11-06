@@ -44,9 +44,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const login = async (credentials: LoginCredentials) => {
-    await apiClient.login(credentials);
-    const currentUser = await apiClient.getCurrentUser();
-    setUser(currentUser);
+    try {
+      // Login and get tokens
+      await apiClient.login(credentials);
+      
+      // Fetch current user data
+      const currentUser = await apiClient.getCurrentUser();
+      setUser(currentUser);
+      
+      console.log('Login successful, user:', currentUser.username, 'role:', currentUser.role);
+    } catch (error) {
+      console.error('Login failed:', error);
+      // Clear any partial state
+      setUser(null);
+      localStorage.removeItem('access_token');
+      localStorage.removeItem('refresh_token');
+      throw error;
+    }
   };
 
   const logout = async () => {

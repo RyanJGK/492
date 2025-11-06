@@ -22,9 +22,12 @@ export function LoginPage() {
 
     try {
       await login({ username, password });
-      navigate('/dashboard');
+      // Navigation happens after successful login
+      // Using replace to prevent back button returning to login
+      navigate('/dashboard', { replace: true });
     } catch (err: any) {
-      setError(err.response?.data?.detail || 'Invalid credentials');
+      console.error('Login error:', err);
+      setError(err.response?.data?.detail || 'Invalid credentials. Please check your username and password.');
     } finally {
       setLoading(false);
     }
@@ -114,20 +117,41 @@ export function LoginPage() {
             <h3 className="text-sm font-semibold text-gray-700 mb-3">
               Demo Credentials:
             </h3>
-            <div className="space-y-2 text-xs text-gray-600">
-              <div className="flex justify-between">
-                <span className="font-medium">Admin:</span>
-                <span>admin / admin123</span>
+            <div className="space-y-3 text-sm">
+              <div className="bg-primary-50 rounded-lg p-3">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="font-semibold text-primary-900">Admin Account</span>
+                  <span className="text-xs text-primary-700">Full Access</span>
+                </div>
+                <div className="font-mono text-xs text-primary-800">
+                  <div>Username: <span className="font-bold">admin</span></div>
+                  <div>Password: <span className="font-bold">admin123</span></div>
+                </div>
               </div>
-              <div className="flex justify-between">
-                <span className="font-medium">Analyst:</span>
-                <span>analyst / admin123</span>
+              <div className="bg-blue-50 rounded-lg p-3">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="font-semibold text-blue-900">Analyst Account</span>
+                  <span className="text-xs text-blue-700">View & Edit</span>
+                </div>
+                <div className="font-mono text-xs text-blue-800">
+                  <div>Username: <span className="font-bold">analyst</span></div>
+                  <div>Password: <span className="font-bold">admin123</span></div>
+                </div>
               </div>
-              <div className="flex justify-between">
-                <span className="font-medium">Observer:</span>
-                <span>observer / admin123</span>
+              <div className="bg-gray-50 rounded-lg p-3">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="font-semibold text-gray-900">Observer Account</span>
+                  <span className="text-xs text-gray-700">Read Only</span>
+                </div>
+                <div className="font-mono text-xs text-gray-800">
+                  <div>Username: <span className="font-bold">observer</span></div>
+                  <div>Password: <span className="font-bold">admin123</span></div>
+                </div>
               </div>
             </div>
+            <p className="mt-3 text-xs text-gray-500 text-center italic">
+              Note: Usernames are case-insensitive
+            </p>
           </div>
         </div>
 
