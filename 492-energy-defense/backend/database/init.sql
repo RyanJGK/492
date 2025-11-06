@@ -1,10 +1,10 @@
 -- Initialize Energy Defense Database
 -- Security-hardened schema with RBAC and audit trails
 
--- Create custom types
-CREATE TYPE user_role AS ENUM ('admin', 'analyst', 'observer');
-CREATE TYPE severity_level AS ENUM ('critical', 'high', 'medium', 'low', 'info');
-CREATE TYPE event_status AS ENUM ('pending', 'investigating', 'resolved', 'false_positive');
+-- Create custom types (names match SQLAlchemy enum class names in lowercase)
+CREATE TYPE userrole AS ENUM ('admin', 'analyst', 'observer');
+CREATE TYPE severitylevel AS ENUM ('critical', 'high', 'medium', 'low', 'info');
+CREATE TYPE eventstatus AS ENUM ('pending', 'investigating', 'resolved', 'false_positive');
 
 -- Users table with role-based access
 CREATE TABLE IF NOT EXISTS users (
@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS users (
     username VARCHAR(100) UNIQUE NOT NULL,
     email VARCHAR(255) UNIQUE NOT NULL,
     hashed_password VARCHAR(255) NOT NULL,
-    role user_role NOT NULL DEFAULT 'observer',
+    role userrole NOT NULL DEFAULT 'observer',
     is_active BOOLEAN DEFAULT true,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
@@ -40,7 +40,7 @@ CREATE TABLE IF NOT EXISTS patch_levels (
     current_version VARCHAR(100),
     latest_version VARCHAR(100),
     patch_status VARCHAR(50), -- up_to_date, outdated, critical
-    severity severity_level,
+    severity severitylevel,
     cve_ids TEXT[], -- Array of CVE identifiers
     last_patched TIMESTAMP WITH TIME ZONE,
     next_scheduled_patch TIMESTAMP WITH TIME ZONE,
@@ -54,7 +54,7 @@ CREATE TABLE IF NOT EXISTS vulnerability_scans (
     scan_id UUID UNIQUE NOT NULL,
     target_system VARCHAR(255) NOT NULL,
     scan_type VARCHAR(100), -- network, application, infrastructure
-    severity severity_level,
+    severity severitylevel,
     vulnerability_name VARCHAR(255),
     vulnerability_description TEXT,
     cve_id VARCHAR(50),
@@ -62,7 +62,7 @@ CREATE TABLE IF NOT EXISTS vulnerability_scans (
     affected_component VARCHAR(255),
     remediation_steps TEXT,
     scan_timestamp TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    status event_status DEFAULT 'pending',
+    status eventstatus DEFAULT 'pending',
     assigned_to INTEGER REFERENCES users(id),
     metadata JSONB
 );
@@ -80,7 +80,7 @@ CREATE TABLE IF NOT EXISTS firewall_logs (
     rule_id VARCHAR(100),
     packet_size INTEGER,
     flags TEXT,
-    severity severity_level,
+    severity severitylevel,
     threat_indicator BOOLEAN DEFAULT false,
     country_code VARCHAR(5),
     metadata JSONB
@@ -94,7 +94,7 @@ CREATE TABLE IF NOT EXISTS ai_analysis (
     input_data JSONB NOT NULL,
     ai_response TEXT,
     confidence_score DECIMAL(5, 4), -- 0.0000 to 1.0000
-    threat_level severity_level,
+    threat_level severitylevel,
     recommendations TEXT,
     data_sources TEXT[], -- Which tables/sources were analyzed
     weight_configuration JSONB, -- Snapshot of weights used for this analysis

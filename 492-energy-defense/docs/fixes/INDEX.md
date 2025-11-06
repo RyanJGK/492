@@ -28,6 +28,24 @@ All fix documentation and database optimization resources in one place.
 
 ## 🚨 Critical Fixes Applied (Latest First)
 
+### 10. Enum Type Name Mismatch (P0) 🆕🆕
+**Issue:** `type "severitylevel" does not exist`  
+**Fix:** Renamed PostgreSQL enum types to match SQLAlchemy expectations  
+**Files:** `backend/database/init.sql`  
+**Details:** [ENUM_TYPE_MISMATCH_FIX.md](./ENUM_TYPE_MISMATCH_FIX.md)  
+**Status:** ✅ Fixed
+
+### 9. Missing email-validator Package (P0) 🆕🆕
+**Issue:** `ImportError: email-validator is not installed`  
+**Fix:** Added email-validator==2.1.0 to requirements.txt  
+**Files:** `backend/requirements.txt`  
+**Status:** ✅ Fixed
+
+### 8. Role "root" Connection Errors (INFO) 🆕🆕
+**Issue:** `FATAL: role "root" does not exist` (harmless)  
+**Fix:** Not a bug - external connection attempts, safe to ignore  
+**Status:** ✅ Not an issue
+
 ### 7. SQLAlchemy Reserved Word 'metadata' (P0) 🆕
 **Issue:** `Attribute name 'metadata' is reserved when using the Declarative API`  
 **Fix:** Renamed Python attributes while keeping DB column names  
@@ -118,14 +136,16 @@ docker-compose exec postgres psql -U admin -d energy_defense -c \
 
 ## 📊 Summary Statistics
 
-**Total Issues Found:** 7  
-**Critical (P0):** 6  
+**Total Issues Found:** 10  
+**Critical (P0):** 8  
 **High (P1):** 1  
-**All Resolved:** ✅ Yes (2025-11-06)
+**Informational:** 1  
+**All Resolved:** ✅ Yes (2025-11-06 03:30 UTC)
 
 **Files Modified:**
-- `backend/database/init.sql` (3 fixes)
+- `backend/database/init.sql` (12 fixes total)
 - `backend/api/models.py` (3 model fixes)
+- `backend/requirements.txt` (1 fix)
 - `backend/Dockerfile` (2 fixes)
 - `backend/Dockerfile.ai` (1 fix)
 - `backend/scripts/data_simulator.py` (2 fixes)
@@ -134,7 +154,9 @@ docker-compose exec postgres psql -U admin -d energy_defense -c \
 **Database Schema Changes:**
 - Added 1 trigger (`ai_weight_config_updated_at`)
 - Fixed role creation order
+- Renamed 3 enum types (userrole, severitylevel, eventstatus)
 - No column changes (metadata columns remain in DB)
+- **⚠️ Database recreation required** (`docker-compose down -v`)
 
 **Breaking Changes:** None  
 **Migrations Needed:** No (fresh init only)
@@ -159,7 +181,8 @@ docker-compose exec postgres psql -U admin -d energy_defense -c \
 
 ## 🗂️ All Fix Documents
 
-- [ALL_FIXES_APPLIED.md](./ALL_FIXES_APPLIED.md) - Complete summary ⭐
+- [ALL_FIXES_APPLIED.md](./ALL_FIXES_APPLIED.md) - Complete summary (first 7 fixes) ⭐
+- [ENUM_TYPE_MISMATCH_FIX.md](./ENUM_TYPE_MISMATCH_FIX.md) - Latest fixes (8-10) ⭐⭐
 - [METADATA_COLUMN_FIX.md](./METADATA_COLUMN_FIX.md) - SQLAlchemy reserved word
 - [DATABASE_CONNECTION_FIX.md](./DATABASE_CONNECTION_FIX.md) - Healthcheck fix
 - [DEEP_DATABASE_ANALYSIS.md](./DEEP_DATABASE_ANALYSIS.md) - Full database audit
