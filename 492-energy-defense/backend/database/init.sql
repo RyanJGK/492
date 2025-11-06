@@ -172,12 +172,17 @@ CREATE TRIGGER update_users_updated_at BEFORE UPDATE ON users
 CREATE TRIGGER update_patch_levels_updated_at BEFORE UPDATE ON patch_levels
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+CREATE TRIGGER update_ai_weight_config_updated_at BEFORE UPDATE ON ai_weight_config
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
 -- Insert default admin user (password: admin123 - CHANGE IN PRODUCTION)
 -- Password hash generated with bcrypt
+-- IMPORTANT: Generate fresh hash with: docker-compose exec backend python3 generate-password-hash.py
+-- Or manually: python3 -c "from passlib.context import CryptContext; print(CryptContext(schemes=['bcrypt']).hash('admin123'))"
 INSERT INTO users (username, email, hashed_password, role) VALUES
-    ('admin', 'admin@energy-defense.local', '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5lk3PqXZO0Oju', 'admin'),
-    ('analyst', 'analyst@energy-defense.local', '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5lk3PqXZO0Oju', 'analyst'),
-    ('observer', 'observer@energy-defense.local', '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5lk3PqXZO0Oju', 'observer')
+    ('admin', 'admin@energy-defense.local', '$2b$12$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW', 'admin'),
+    ('analyst', 'analyst@energy-defense.local', '$2b$12$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW', 'analyst'),
+    ('observer', 'observer@energy-defense.local', '$2b$12$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW', 'observer')
 ON CONFLICT (username) DO NOTHING;
 
 -- Insert default AI weight configuration
