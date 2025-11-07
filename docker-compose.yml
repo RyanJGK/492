@@ -1,0 +1,63 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: energy_defense
+      POSTGRES_USER: defense_user
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-SecureDefense2024!}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./datasets:/datasets
+      - ./backend/init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U defense_user"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - energy_defense_network
+
+  backend:
+    build: ./backend
+    environment:
+      DATABASE_URL: postgresql://defense_user:${DB_PASSWORD:-SecureDefense2024!}@postgres:5432/energy_defense
+      JWT_SECRET: ${JWT_SECRET:-your-secret-key-change-in-production-min-32-chars}
+      MODEL_PATH: /app/models
+      REPLAY_SPEED: ${REPLAY_SPEED:-100}
+    volumes:
+      - ./backend:/app
+      - ./models:/app/models
+      - ./datasets:/app/datasets
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+    networks:
+      - energy_defense_network
+
+  frontend:
+    build: ./frontend
+    environment:
+      REACT_APP_API_URL: http://localhost:8000
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    depends_on:
+      - backend
+    networks:
+      - energy_defense_network
+
+volumes:
+  postgres_data:
+
+networks:
+  energy_defense_network:
+    driver: bridge
