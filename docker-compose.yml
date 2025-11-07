@@ -1,0 +1,115 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: energy-defense-db
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-energydefense}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-secure_password_change_in_production}
+      POSTGRES_DB: ${POSTGRES_DB:-energy_defense}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/init:/docker-entrypoint-initdb.d
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-energydefense}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - energy-defense-network
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: energy-defense-backend
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-energydefense}:${POSTGRES_PASSWORD:-secure_password_change_in_production}@postgres:5432/${POSTGRES_DB:-energy_defense}
+      SECRET_KEY: ${SECRET_KEY:-your-secret-key-here-change-in-production-min-32-chars}
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY}
+      AI_AGENT_URL: http://ai-agent:8001
+      JWT_ALGORITHM: HS256
+      ACCESS_TOKEN_EXPIRE_MINUTES: 30
+      ENVIRONMENT: development
+    ports:
+      - "${BACKEND_PORT:-8000}:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      ai-agent:
+        condition: service_started
+    volumes:
+      - ./backend:/app
+    networks:
+      - energy-defense-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+  ai-agent:
+    build:
+      context: ./ai-agent
+      dockerfile: Dockerfile
+    container_name: energy-defense-ai-agent
+    environment:
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY}
+      CACHE_DIR: /app/cache
+    ports:
+      - "${AI_AGENT_PORT:-8001}:8001"
+    volumes:
+      - ./ai-agent:/app
+      - ai_cache:/app/cache
+    networks:
+      - energy-defense-network
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8001 --reload
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: energy-defense-frontend
+    environment:
+      VITE_API_URL: ${VITE_API_URL:-http://localhost:8000}
+    ports:
+      - "${FRONTEND_PORT:-3000}:3000"
+    depends_on:
+      backend:
+        condition: service_healthy
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    networks:
+      - energy-defense-network
+    stdin_open: true
+    tty: true
+    command: npm run dev -- --host 0.0.0.0 --port 3000
+
+  data-simulator:
+    build:
+      context: ./data-simulator
+      dockerfile: Dockerfile
+    container_name: energy-defense-simulator
+    environment:
+      BACKEND_API_URL: http://backend:8000
+      SIMULATION_INTERVAL: ${SIMULATION_INTERVAL:-30}
+    depends_on:
+      - backend
+    volumes:
+      - ./data-simulator:/app
+    networks:
+      - energy-defense-network
+
+volumes:
+  postgres_data:
+  ai_cache:
+
+networks:
+  energy-defense-network:
+    driver: bridge
