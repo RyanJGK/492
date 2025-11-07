@@ -44,21 +44,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const login = async (credentials: LoginCredentials) => {
+    console.log('[AuthContext] Login attempt:', credentials.username);
+    
     try {
       // Login and get tokens
-      await apiClient.login(credentials);
+      console.log('[AuthContext] Calling apiClient.login...');
+      const authResponse = await apiClient.login(credentials);
+      console.log('[AuthContext] Login API successful, tokens received');
       
       // Fetch current user data
+      console.log('[AuthContext] Fetching current user...');
       const currentUser = await apiClient.getCurrentUser();
-      setUser(currentUser);
+      console.log('[AuthContext] Current user fetched:', currentUser);
       
-      console.log('Login successful, user:', currentUser.username, 'role:', currentUser.role);
-    } catch (error) {
-      console.error('Login failed:', error);
+      setUser(currentUser);
+      console.log('[AuthContext] ✅ Login complete! User:', currentUser.username, 'Role:', currentUser.role);
+    } catch (error: any) {
+      console.error('[AuthContext] ❌ Login failed:', error);
+      console.error('[AuthContext] Error details:', {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status
+      });
+      
       // Clear any partial state
       setUser(null);
       localStorage.removeItem('access_token');
       localStorage.removeItem('refresh_token');
+      
       throw error;
     }
   };

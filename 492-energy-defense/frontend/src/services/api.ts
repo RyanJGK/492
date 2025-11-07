@@ -56,13 +56,30 @@ class ApiClient {
   // ========== Authentication ==========
 
   async login(credentials: LoginCredentials): Promise<AuthResponse> {
-    const { data } = await this.client.post<AuthResponse>(
-      '/api/v1/auth/login',
-      credentials
-    );
-    localStorage.setItem('access_token', data.access_token);
-    localStorage.setItem('refresh_token', data.refresh_token);
-    return data;
+    console.log('[API] POST /api/v1/auth/login', { username: credentials.username });
+    
+    try {
+      const { data } = await this.client.post<AuthResponse>(
+        '/api/v1/auth/login',
+        credentials
+      );
+      
+      console.log('[API] Login response received:', {
+        hasAccessToken: !!data.access_token,
+        hasRefreshToken: !!data.refresh_token,
+        tokenType: data.token_type
+      });
+      
+      localStorage.setItem('access_token', data.access_token);
+      localStorage.setItem('refresh_token', data.refresh_token);
+      console.log('[API] Tokens stored in localStorage');
+      
+      return data;
+    } catch (error: any) {
+      console.error('[API] Login request failed:', error);
+      console.error('[API] Error response:', error.response?.data);
+      throw error;
+    }
   }
 
   async logout(): Promise<void> {
@@ -75,8 +92,21 @@ class ApiClient {
   }
 
   async getCurrentUser(): Promise<User> {
-    const { data } = await this.client.get<User>('/api/v1/auth/me');
-    return data;
+    console.log('[API] GET /api/v1/auth/me');
+    
+    try {
+      const { data } = await this.client.get<User>('/api/v1/auth/me');
+      console.log('[API] User data received:', {
+        id: data.id,
+        username: data.username,
+        role: data.role
+      });
+      return data;
+    } catch (error: any) {
+      console.error('[API] Get current user failed:', error);
+      console.error('[API] Error response:', error.response?.data);
+      throw error;
+    }
   }
 
   // ========== Dashboard ==========

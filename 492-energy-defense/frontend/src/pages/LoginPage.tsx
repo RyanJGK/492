@@ -20,15 +20,31 @@ export function LoginPage() {
     setError('');
     setLoading(true);
 
+    console.log('🔐 [LoginPage] Login attempt started:', { username, passwordLength: password.length });
+
     try {
+      console.log('🔐 [LoginPage] Calling login function...');
       await login({ username, password });
-      // Navigation happens after successful login
-      // Using replace to prevent back button returning to login
+      console.log('✅ [LoginPage] Login successful! Navigating to dashboard...');
+      
+      // Navigate immediately - user state is now set
       navigate('/dashboard', { replace: true });
+      console.log('🚀 [LoginPage] Navigation to dashboard triggered');
+      
+      // Keep loading state true during navigation
     } catch (err: any) {
-      console.error('Login error:', err);
-      setError(err.response?.data?.detail || 'Invalid credentials. Please check your username and password.');
-    } finally {
+      console.error('❌ [LoginPage] Login error:', err);
+      console.error('❌ [LoginPage] Error details:', {
+        message: err.message,
+        response: err.response?.data,
+        status: err.response?.status
+      });
+      
+      const errorMessage = err.response?.data?.detail 
+        || err.message 
+        || 'Invalid credentials. Please check your username and password.';
+      
+      setError(errorMessage);
       setLoading(false);
     }
   };
