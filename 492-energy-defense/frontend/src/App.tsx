@@ -1,86 +1,56 @@
 /**
  * Main Application Component
- * Handles routing and authentication
+ * Demo mode - no authentication required
  */
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider, useAuth } from '@/context/AuthContext';
+import { AuthProvider } from '@/context/AuthContext';
 import { DashboardLayout } from '@/components/DashboardLayout';
-import { LoginPage } from '@/pages/LoginPage';
 import { DashboardPage } from '@/pages/DashboardPage';
 import { VulnerabilitiesPage } from '@/pages/VulnerabilitiesPage';
 import { AIConfigPage } from '@/pages/AIConfigPage';
 import { FeedbackPage } from '@/pages/FeedbackPage';
 
 /**
- * Protected Route Wrapper
- * Redirects to login if not authenticated
- */
-function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const { user, loading } = useAuth();
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600 font-medium">Loading...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (!user) {
-    console.log('No user found, redirecting to login');
-    return <Navigate to="/login" replace />;
-  }
-
-  console.log('User authenticated:', user.username, 'navigating to protected route');
-  return <DashboardLayout>{children}</DashboardLayout>;
-}
-
-/**
- * Main App Component
+ * Main App Component - Demo Mode
+ * All routes are accessible, role switching handled in dashboard
  */
 function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
         <Routes>
-          {/* Public Routes */}
-          <Route path="/login" element={<LoginPage />} />
-
-          {/* Protected Routes */}
+          {/* All routes wrapped in dashboard layout */}
           <Route
             path="/dashboard"
             element={
-              <ProtectedRoute>
+              <DashboardLayout>
                 <DashboardPage />
-              </ProtectedRoute>
+              </DashboardLayout>
             }
           />
           <Route
             path="/vulnerabilities"
             element={
-              <ProtectedRoute>
+              <DashboardLayout>
                 <VulnerabilitiesPage />
-              </ProtectedRoute>
+              </DashboardLayout>
             }
           />
           <Route
             path="/ai-config"
             element={
-              <ProtectedRoute>
+              <DashboardLayout>
                 <AIConfigPage />
-              </ProtectedRoute>
+              </DashboardLayout>
             }
           />
           <Route
             path="/feedback"
             element={
-              <ProtectedRoute>
+              <DashboardLayout>
                 <FeedbackPage />
-              </ProtectedRoute>
+              </DashboardLayout>
             }
           />
 

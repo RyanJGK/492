@@ -1,16 +1,16 @@
 /**
- * Dashboard Layout
- * Main application shell with navigation and role-based menu
+ * Dashboard Layout - Demo Mode
+ * Main application shell with role switcher
  */
 import React, { ReactNode } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
+import { RoleSwitcher } from '@/components/RoleSwitcher';
 import {
   Shield,
   LayoutDashboard,
   AlertTriangle,
   Settings,
-  LogOut,
   User,
   MessageSquare,
 } from 'lucide-react';
@@ -21,14 +21,8 @@ interface DashboardLayoutProps {
 }
 
 export function DashboardLayout({ children }: DashboardLayoutProps) {
-  const { user, logout, isAdmin, isAnalyst } = useAuth();
-  const navigate = useNavigate();
+  const { user, hasRole } = useAuth();
   const location = useLocation();
-
-  const handleLogout = async () => {
-    await logout();
-    navigate('/login');
-  };
 
   const menuItems = [
     {
@@ -58,7 +52,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   ];
 
   const canAccessItem = (itemRoles: string[]) => {
-    return user && itemRoles.includes(user.role);
+    return hasRole(itemRoles as any);
   };
 
   return (
@@ -69,29 +63,28 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
           <div className="flex justify-between h-16">
             <div className="flex items-center">
               <Shield className="w-8 h-8 text-primary-600" />
-              <span className="ml-3 text-xl font-bold text-gray-900">
-                492-Energy-Defense
-              </span>
+              <div className="ml-3">
+                <div className="text-xl font-bold text-gray-900">
+                  492-Energy-Defense
+                </div>
+                <div className="text-xs text-gray-500">Demo Mode</div>
+              </div>
             </div>
 
             <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-3">
+              {/* Role Switcher */}
+              <RoleSwitcher />
+
+              {/* Current User Info */}
+              <div className="flex items-center space-x-2 border-l border-gray-200 pl-4">
                 <User className="w-5 h-5 text-gray-500" />
                 <div className="text-sm">
                   <div className="font-medium text-gray-900">
-                    {user?.username}
+                    {user.username}
                   </div>
-                  <div className="text-gray-500 capitalize">{user?.role}</div>
+                  <div className="text-gray-500 capitalize text-xs">{user.role}</div>
                 </div>
               </div>
-
-              <button
-                onClick={handleLogout}
-                className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary-500"
-              >
-                <LogOut className="w-4 h-4 mr-2" />
-                Logout
-              </button>
             </div>
           </div>
         </div>
@@ -130,15 +123,18 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
             <div
               className={clsx(
                 'px-3 py-2 rounded-lg text-sm font-semibold text-center',
-                user?.role === 'admin' &&
-                  'bg-danger-100 text-danger-700 border border-danger-200',
-                user?.role === 'analyst' &&
-                  'bg-warning-100 text-warning-700 border border-warning-200',
-                user?.role === 'observer' &&
-                  'bg-success-100 text-success-700 border border-success-200'
+                user.role === 'admin' &&
+                  'bg-red-100 text-red-700 border border-red-200',
+                user.role === 'analyst' &&
+                  'bg-blue-100 text-blue-700 border border-blue-200',
+                user.role === 'observer' &&
+                  'bg-green-100 text-green-700 border border-green-200'
               )}
             >
-              {user?.role.toUpperCase()} ACCESS
+              {user.role.toUpperCase()} ACCESS
+            </div>
+            <div className="mt-2 text-xs text-gray-500 text-center">
+              Switch roles using the buttons above
             </div>
           </div>
         </aside>
