@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Test - Energy Defense</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2563eb;
+            border-bottom: 3px solid #2563eb;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #1e40af;
+            margin-top: 30px;
+        }
+        .test-section {
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .test-button {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 10px 10px 0;
+        }
+        .test-button:hover {
+            background: #1d4ed8;
+        }
+        .test-button:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+        }
+        .output {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .success {
+            color: #10b981;
+        }
+        .error {
+            color: #ef4444;
+        }
+        .warning {
+            color: #f59e0b;
+        }
+        .info {
+            color: #3b82f6;
+        }
+        .step {
+            margin: 15px 0;
+            padding: 10px;
+            background: white;
+            border-left: 4px solid #2563eb;
+        }
+        .instructions {
+            background: #fef3c7;
+            border: 2px solid #f59e0b;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        .status {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 4px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        .status.pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        .status.running {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+        .status.pass {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        .status.fail {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Energy Defense - Login Diagnostic Tool</h1>
+        
+        <div class="instructions">
+            <strong>📋 Instructions:</strong>
+            <ol>
+                <li>Make sure your services are running: <code>docker compose up -d</code></li>
+                <li>Open browser DevTools (Press F12)</li>
+                <li>Go to Console tab in DevTools</li>
+                <li>Run tests below and watch BOTH this page AND the DevTools console</li>
+            </ol>
+        </div>
+
+        <h2>Test 1: Backend Health Check</h2>
+        <div class="test-section">
+            <button class="test-button" onclick="testBackendHealth()">Test Backend</button>
+            <span id="status-backend" class="status pending">PENDING</span>
+            <div id="output-backend" class="output"></div>
+        </div>
+
+        <h2>Test 2: Login API (Direct)</h2>
+        <div class="test-section">
+            <button class="test-button" onclick="testLoginAPI()">Test Login API</button>
+            <span id="status-login" class="status pending">PENDING</span>
+            <div id="output-login" class="output"></div>
+        </div>
+
+        <h2>Test 3: Get Current User API</h2>
+        <div class="test-section">
+            <button class="test-button" onclick="testGetUser()" id="btn-getuser" disabled>Test Get User</button>
+            <span id="status-getuser" class="status pending">PENDING</span>
+            <p style="color: #6b7280; font-size: 14px;">Run "Test Login API" first to get token</p>
+            <div id="output-getuser" class="output"></div>
+        </div>
+
+        <h2>Test 4: Full Login Flow</h2>
+        <div class="test-section">
+            <button class="test-button" onclick="testFullFlow()">Test Full Flow</button>
+            <span id="status-full" class="status pending">PENDING</span>
+            <div id="output-full" class="output"></div>
+        </div>
+
+        <h2>Test 5: Open Login Page</h2>
+        <div class="test-section">
+            <button class="test-button" onclick="openLoginPage()">Open Login Page</button>
+            <p style="color: #6b7280;">
+                This will open http://localhost:3000 in a new tab.<br>
+                After clicking "Open Login Page", watch the DevTools console for detailed logs.
+            </p>
+        </div>
+
+        <h2>📝 What to Look For</h2>
+        <div class="step">
+            <strong>In this page:</strong> All tests should show status as <span class="status pass">PASS</span>
+        </div>
+        <div class="step">
+            <strong>In DevTools Console:</strong> Look for logs prefixed with 🔐, ✅, ❌, or [API]
+        </div>
+        <div class="step">
+            <strong>Expected flow when you login:</strong>
+            <ol>
+                <li>🔐 Login attempt started</li>
+                <li>[API] POST /api/v1/auth/login</li>
+                <li>✅ Tokens stored</li>
+                <li>[API] GET /api/v1/auth/me</li>
+                <li>✅ Login complete</li>
+                <li>🚀 Navigation to dashboard triggered</li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        let accessToken = null;
+
+        function log(elementId, message, type = 'info') {
+            const output = document.getElementById(elementId);
+            const colors = {
+                success: 'color: #10b981',
+                error: 'color: #ef4444',
+                warning: 'color: #f59e0b',
+                info: 'color: #3b82f6'
+            };
+            const timestamp = new Date().toLocaleTimeString();
+            const line = `[${timestamp}] ${message}\n`;
+            output.innerHTML += `<span style="${colors[type]}">${line}</span>`;
+            output.scrollTop = output.scrollHeight;
+        }
+
+        function setStatus(statusId, status) {
+            const el = document.getElementById(statusId);
+            el.className = `status ${status}`;
+            el.textContent = status.toUpperCase();
+        }
+
+        async function testBackendHealth() {
+            const btn = event.target;
+            btn.disabled = true;
+            setStatus('status-backend', 'running');
+            document.getElementById('output-backend').innerHTML = '';
+
+            try {
+                log('output-backend', 'Testing backend health...', 'info');
+                const response = await fetch('http://localhost:8000/health');
+                const data = await response.json();
+                
+                if (response.ok && data.status === 'healthy') {
+                    log('output-backend', '✅ Backend is healthy!', 'success');
+                    log('output-backend', JSON.stringify(data, null, 2), 'success');
+                    setStatus('status-backend', 'pass');
+                } else {
+                    log('output-backend', '❌ Backend returned unexpected response', 'error');
+                    log('output-backend', JSON.stringify(data, null, 2), 'error');
+                    setStatus('status-backend', 'fail');
+                }
+            } catch (error) {
+                log('output-backend', '❌ Cannot connect to backend!', 'error');
+                log('output-backend', error.message, 'error');
+                log('output-backend', 'Make sure: docker compose up -d', 'warning');
+                setStatus('status-backend', 'fail');
+            }
+            btn.disabled = false;
+        }
+
+        async function testLoginAPI() {
+            const btn = event.target;
+            btn.disabled = true;
+            setStatus('status-login', 'running');
+            document.getElementById('output-login').innerHTML = '';
+
+            try {
+                log('output-login', 'Sending login request...', 'info');
+                log('output-login', 'Username: admin, Password: admin123', 'info');
+                
+                const response = await fetch('http://localhost:8000/api/v1/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        username: 'admin',
+                        password: 'admin123'
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (response.ok && data.access_token) {
+                    accessToken = data.access_token;
+                    log('output-login', '✅ Login successful!', 'success');
+                    log('output-login', `Access token: ${data.access_token.substring(0, 50)}...`, 'success');
+                    log('output-login', `Token type: ${data.token_type}`, 'success');
+                    setStatus('status-login', 'pass');
+                    
+                    // Enable get user test
+                    document.getElementById('btn-getuser').disabled = false;
+                } else {
+                    log('output-login', '❌ Login failed!', 'error');
+                    log('output-login', JSON.stringify(data, null, 2), 'error');
+                    setStatus('status-login', 'fail');
+                }
+            } catch (error) {
+                log('output-login', '❌ Login request failed!', 'error');
+                log('output-login', error.message, 'error');
+                setStatus('status-login', 'fail');
+            }
+            btn.disabled = false;
+        }
+
+        async function testGetUser() {
+            if (!accessToken) {
+                alert('Run "Test Login API" first to get access token');
+                return;
+            }
+
+            const btn = event.target;
+            btn.disabled = true;
+            setStatus('status-getuser', 'running');
+            document.getElementById('output-getuser').innerHTML = '';
+
+            try {
+                log('output-getuser', 'Fetching current user...', 'info');
+                log('output-getuser', `Using token: ${accessToken.substring(0, 30)}...`, 'info');
+                
+                const response = await fetch('http://localhost:8000/api/v1/auth/me', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`
+                    }
+                });
+
+                const data = await response.json();
+                
+                if (response.ok && data.username) {
+                    log('output-getuser', '✅ User data retrieved!', 'success');
+                    log('output-getuser', JSON.stringify(data, null, 2), 'success');
+                    setStatus('status-getuser', 'pass');
+                } else {
+                    log('output-getuser', '❌ Failed to get user!', 'error');
+                    log('output-getuser', JSON.stringify(data, null, 2), 'error');
+                    setStatus('status-getuser', 'fail');
+                }
+            } catch (error) {
+                log('output-getuser', '❌ Request failed!', 'error');
+                log('output-getuser', error.message, 'error');
+                setStatus('status-getuser', 'fail');
+            }
+            btn.disabled = false;
+        }
+
+        async function testFullFlow() {
+            const btn = event.target;
+            btn.disabled = true;
+            setStatus('status-full', 'running');
+            document.getElementById('output-full').innerHTML = '';
+
+            try {
+                // Step 1: Login
+                log('output-full', 'STEP 1: Testing login...', 'info');
+                const loginResp = await fetch('http://localhost:8000/api/v1/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: 'admin', password: 'admin123' })
+                });
+                const loginData = await loginResp.json();
+                
+                if (!loginResp.ok || !loginData.access_token) {
+                    throw new Error('Login failed');
+                }
+                log('output-full', '✅ Login successful', 'success');
+
+                // Step 2: Get User
+                log('output-full', 'STEP 2: Fetching user data...', 'info');
+                const userResp = await fetch('http://localhost:8000/api/v1/auth/me', {
+                    headers: { 'Authorization': `Bearer ${loginData.access_token}` }
+                });
+                const userData = await userResp.json();
+                
+                if (!userResp.ok || !userData.username) {
+                    throw new Error('Get user failed');
+                }
+                log('output-full', `✅ User data: ${userData.username} (${userData.role})`, 'success');
+
+                // Success
+                log('output-full', '✅ FULL FLOW SUCCESSFUL!', 'success');
+                log('output-full', 'If this works but login page doesn\'t navigate, the issue is in React Router or frontend state management.', 'warning');
+                setStatus('status-full', 'pass');
+            } catch (error) {
+                log('output-full', '❌ Full flow failed!', 'error');
+                log('output-full', error.message, 'error');
+                setStatus('status-full', 'fail');
+            }
+            btn.disabled = false;
+        }
+
+        function openLoginPage() {
+            log('output-full', 'Opening login page...', 'info');
+            log('output-full', 'Check browser DevTools Console tab for detailed logs!', 'warning');
+            window.open('http://localhost:3000', '_blank');
+        }
+
+        // Auto-run backend health check on load
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                const btn = document.querySelector('button');
+                if (btn) {
+                    btn.click();
+                }
+            }, 500);
+        });
+    </script>
+</body>
+</html>
