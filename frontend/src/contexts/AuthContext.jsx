@@ -48,9 +48,17 @@ export const AuthProvider = ({ children }) => {
       return { success: true };
     } catch (error) {
       console.error('Login failed:', error);
+      let errorMessage = 'Login failed';
+      
+      if (error.code === 'ERR_NETWORK' || error.message === 'Network Error') {
+        errorMessage = 'Cannot connect to backend. Please ensure the backend service is running.';
+      } else if (error.response?.data?.detail) {
+        errorMessage = error.response.data.detail;
+      }
+      
       return {
         success: false,
-        error: error.response?.data?.detail || 'Login failed'
+        error: errorMessage
       };
     }
   };
